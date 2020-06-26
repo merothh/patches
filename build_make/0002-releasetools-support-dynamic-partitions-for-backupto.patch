@@ -1,0 +1,61 @@
+From c3bf37c3b1525567b5c4dcba965e1eb941047b11 Mon Sep 17 00:00:00 2001
+From: Jesse Chan <jc@lineageos.org>
+Date: Fri, 12 Jun 2020 21:53:18 +0800
+Subject: [PATCH] releasetools: support dynamic partitions for backuptool
+
+Change-Id: I4a04e52f64e307a9852d786aabf17975a020b4b8
+Signed-off-by: Jesse Chan <jc@lineageos.org>
+---
+ tools/releasetools/edify_generator.py       | 11 ++++++++---
+ tools/releasetools/ota_from_target_files.py |  4 ++--
+ 2 files changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/tools/releasetools/edify_generator.py b/tools/releasetools/edify_generator.py
+index 4b9c1bb0e..8c062bb63 100644
+--- a/tools/releasetools/edify_generator.py
++++ b/tools/releasetools/edify_generator.py
+@@ -156,11 +156,16 @@ class EdifyGenerator(object):
+            ");")
+     self.script.append(self.WordWrap(cmd))
+ 
+-  def RunBackup(self, command, mount_point):
++  def RunBackup(self, command, mount_point, dynamic=False):
+     if self.fstab:
+       p = self.fstab[mount_point]
+-    self.script.append(('run_program("/tmp/install/bin/backuptool.sh", "%s", "%s", "%s");' % (
+-        command, p.device, p.fs_type)))
++    if dynamic:
++      self.script.append(('run_program("/tmp/install/bin/backuptool.sh", "%s", map_partition("%s"), "%s");' % (
++          command, p.device, p.fs_type)))
++      self.script.append(('unmap_partition("%s");' % (p.device)))
++    else:
++      self.script.append(('run_program("/tmp/install/bin/backuptool.sh", "%s", "%s", "%s");' % (
++          command, p.device, p.fs_type)))
+ 
+   def ShowProgress(self, frac, dur):
+     """Update the progress bar, advancing it over 'frac' over the next
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index b853554c5..0cff60f1a 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -1070,7 +1070,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
+     sysmount = "/system"
+ 
+   if OPTIONS.backuptool:
+-    script.RunBackup("backup", sysmount)
++    script.RunBackup("backup", sysmount, target_info.get('use_dynamic_partitions') == "true")
+ 
+   # All other partitions as well as the data wipe use 10% of the progress, and
+   # the update of the system partition takes the remaining progress.
+@@ -1107,7 +1107,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
+ 
+   if OPTIONS.backuptool:
+     script.ShowProgress(0.02, 10)
+-    script.RunBackup("restore", sysmount)
++    script.RunBackup("restore", sysmount, target_info.get('use_dynamic_partitions') == "true")
+ 
+   script.WriteRawImage("/boot", "boot.img")
+ 
+-- 
+2.27.0
+
