@@ -1,0 +1,28 @@
+From 11b3862e8a07c2c055df6f8f961ff36375e21426 Mon Sep 17 00:00:00 2001
+From: Jesse Chan <jc@lineageos.org>
+Date: Tue, 7 Jul 2020 23:50:10 +0800
+Subject: [PATCH] backuptool: do not unmap dynamic partition after finished
+
+Keep partitions mapped so users can install addons.
+
+Change-Id: Ic70621986bf136775e686dc8cc690ce076485907
+Signed-off-by: Jesse Chan <jc@lineageos.org>
+---
+ tools/releasetools/edify_generator.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/tools/releasetools/edify_generator.py b/tools/releasetools/edify_generator.py
+index 8c062bb63..c1c186f1f 100644
+--- a/tools/releasetools/edify_generator.py
++++ b/tools/releasetools/edify_generator.py
+@@ -162,7 +162,6 @@ class EdifyGenerator(object):
+     if dynamic:
+       self.script.append(('run_program("/tmp/install/bin/backuptool.sh", "%s", map_partition("%s"), "%s");' % (
+           command, p.device, p.fs_type)))
+-      self.script.append(('unmap_partition("%s");' % (p.device)))
+     else:
+       self.script.append(('run_program("/tmp/install/bin/backuptool.sh", "%s", "%s", "%s");' % (
+           command, p.device, p.fs_type)))
+-- 
+2.25.1
+
