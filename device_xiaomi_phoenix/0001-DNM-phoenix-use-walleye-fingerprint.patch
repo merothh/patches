@@ -1,34 +1,28 @@
-From 8cdf9a1fbd0cd9c30b6cb730fef75fbb333c41a8 Mon Sep 17 00:00:00 2001
+From 702963cff52863b1870c06c61a5427339a9852ad Mon Sep 17 00:00:00 2001
 From: merothh <merothh@gmail.com>
-Date: Fri, 3 Jul 2020 22:00:02 +0200
-Subject: [PATCH] [DNM]phoenix: use walleye fingerprint
+Date: Sun, 26 Jul 2020 05:30:36 +0530
+Subject: [PATCH] [DNM]: phoenix: use walleye fingerprint
 
 ---
  init/init_phoenix.cpp | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/init/init_phoenix.cpp b/init/init_phoenix.cpp
-index 5a4065b..52df72b 100644
+index 72c592e..8ad359e 100644
 --- a/init/init_phoenix.cpp
 +++ b/init/init_phoenix.cpp
-@@ -86,7 +86,7 @@ void vendor_load_properties() {
-             set_ro_product_prop(source, "device", "phoenix");
-             set_ro_product_prop(source, "model", "Redmi K30");
-         }
--        property_override("ro.build.fingerprint", "Redmi/phoenix/phoenix:10/QKQ1.190825.002/V12.0.3.0.QGHCNXM:user/release-keys");
-+        property_override("ro.build.fingerprint", "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys");
-         property_override("ro.build.description", "phoenix-user 10 QKQ1.190825.002 V12.0.3.0.QGHCNXM release-keys");
-         property_override("ro.boot.product.hardware.sku", "phoenix");
-     } else if (region == "INDIA") {
-@@ -97,7 +97,7 @@ void vendor_load_properties() {
-             set_ro_product_prop(source, "device", "phoenixin");
-             set_ro_product_prop(source, "model", "POCO X2");
-         }
--        property_override("ro.build.fingerprint", "POCO/phoenixin/phoenixin:10/QKQ1.190825.002/V11.0.10.0.QGHINXM:user/release-keys");
-+        property_override("ro.build.fingerprint", "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys");
-         property_override("ro.build.description", "phoenixin-user 10 QKQ1.190825.002 V11.0.10.0.QGHINXM release-keys");
-     }
- }
+@@ -68,9 +68,9 @@ constexpr const char *BUILD_DESCRIPTION[] = {
+ };
+ 
+ constexpr const char *BUILD_FINGERPRINT[] = {
+-    "Redmi/phoenix/phoenix:10/QKQ1.190825.002/V12.0.3.0.QGHCNXM:user/"
++    "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/"
+     "release-keys",
+-    "POCO/phoenixin/phoenixin:10/QKQ1.190825.002/V11.0.11.0.QGHINXM:user/"
++    "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/"
+     "release-keys",
+ };
+ 
 -- 
 2.25.1
 
