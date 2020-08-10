@@ -1,0 +1,26 @@
+From 230c016c456ab55685188fa1a0148de87e76e858 Mon Sep 17 00:00:00 2001
+From: merothh <merothh@gmail.com>
+Date: Mon, 10 Aug 2020 22:03:39 +0200
+Subject: [PATCH] DNM: violet: set oreo walleye patch
+
+Change-Id: I1c4d3b4b5cf8a7ac78febb2d65a0d4e3c43a1a62
+---
+ lineage_violet.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lineage_violet.mk b/lineage_violet.mk
+index 248a204..606aa20 100644
+--- a/lineage_violet.mk
++++ b/lineage_violet.mk
+@@ -17,7 +17,7 @@ PRODUCT_BRAND := Xiaomi
+ PRODUCT_MODEL := Redmi Note 7 Pro
+ PRODUCT_MANUFACTURER := Xiaomi
+ 
+-BUILD_FINGERPRINT := "xiaomi/violet/violet:9/PKQ1.181203.001/V11.0.8.0.PFHINXM:user/release-keys"
++BUILD_FINGERPRINT := "google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys"
+ 
+ PRODUCT_BUILD_PROP_OVERRIDES += \
+     PRIVATE_BUILD_DESC="violet-user 9 PKQ1.181203.001 V11.0.8.0.PFHINXM release-keys" \
+-- 
+2.25.1
+
