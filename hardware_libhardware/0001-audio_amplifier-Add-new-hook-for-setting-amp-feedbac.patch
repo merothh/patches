@@ -1,0 +1,43 @@
+From ba4847c914d5b87e82f7754602be8bb0ddb62303 Mon Sep 17 00:00:00 2001
+From: Pig <pig.priv@gmail.com>
+Date: Tue, 22 Sep 2020 21:41:59 +0800
+Subject: [PATCH] audio_amplifier: Add new hook for setting amp feedback
+
+Change-Id: Ied5e1ccecd1eec39522055b9fdcfb21f8c101670
+---
+ include/hardware/audio_amplifier.h | 6 ++++++
+ modules/audio/audio_amplifier.c    | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/include/hardware/audio_amplifier.h b/include/hardware/audio_amplifier.h
+index 26e58a10..90a21277 100644
+--- a/include/hardware/audio_amplifier.h
++++ b/include/hardware/audio_amplifier.h
+@@ -126,6 +126,12 @@ typedef struct amplifier_device {
+      */
+     int (*in_set_parameters)(struct amplifier_device *device,
+         struct str_parms *parms);
++
++    /**
++     * set feedback
++     */
++    int (*set_feedback)(struct amplifier_device *device,
++        void *adev, uint32_t devices, bool enable);
+ } amplifier_device_t;
+ 
+ typedef struct amplifier_module {
+diff --git a/modules/audio/audio_amplifier.c b/modules/audio/audio_amplifier.c
+index c0d840f9..b2cbd895 100644
+--- a/modules/audio/audio_amplifier.c
++++ b/modules/audio/audio_amplifier.c
+@@ -137,6 +137,7 @@ static int amp_module_open(const hw_module_t *module, const char *name,
+     amp_dev->set_parameters = amp_set_parameters;
+     amp_dev->out_set_parameters = amp_out_set_parameters;
+     amp_dev->in_set_parameters = amp_in_set_parameters;
++    amp_dev->set_feedback = amp_set_feedback;
+ 
+     *device = (hw_device_t *) amp_dev;
+ 
+-- 
+2.25.1
+

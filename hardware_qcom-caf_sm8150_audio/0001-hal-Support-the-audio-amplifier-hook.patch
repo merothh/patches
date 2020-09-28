@@ -1,4 +1,4 @@
-From e9e0c872acf14683f33ea830e5b8a2b6bf2ba750 Mon Sep 17 00:00:00 2001
+From 9a6de7564af10a9f382b7ec43347dd24b29e723e Mon Sep 17 00:00:00 2001
 From: Daniel Hillenbrand <codeworkx@cyanogenmod.org>
 Date: Thu, 23 May 2013 10:10:00 +0530
 Subject: [PATCH 1/2] hal: Support the audio amplifier hook
@@ -43,14 +43,20 @@ Change-Id: I03de7efa9bab8870099028170fa471dfffe1ce84
 
 audio: add amplifier hooks for stream parameter manipulation
 
+hal: Use log/log.h instead of cutils/log.h
+
+Change-Id: I6e52524cc650eea234fbcf64ed17104dd8a3f001
+
+[Pig]: Clang-format
+
 Change-Id: I16a76475cb58a710d229648d77024379bfc499d5
 ---
  hal/Android.mk                   |   6 ++
- hal/audio_extn/audio_amplifier.c | 162 +++++++++++++++++++++++++++++++
- hal/audio_extn/audio_amplifier.h |  52 ++++++++++
- hal/audio_hw.c                   |  36 +++++++
+ hal/audio_extn/audio_amplifier.c | 136 +++++++++++++++++++++++++++++++
+ hal/audio_extn/audio_amplifier.h |  51 ++++++++++++
+ hal/audio_hw.c                   |  36 ++++++++
  hal/audio_hw.h                   |   3 +
- 5 files changed, 259 insertions(+)
+ 5 files changed, 232 insertions(+)
  create mode 100644 hal/audio_extn/audio_amplifier.c
  create mode 100644 hal/audio_extn/audio_amplifier.h
 
@@ -73,10 +79,10 @@ index de04e5275..80d1591e7 100644
  
 diff --git a/hal/audio_extn/audio_amplifier.c b/hal/audio_extn/audio_amplifier.c
 new file mode 100644
-index 000000000..a3e026396
+index 000000000..cc4f7d786
 --- /dev/null
 +++ b/hal/audio_extn/audio_amplifier.c
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,136 @@
 +/*
 + * Copyright (c) 2016 The CyanogenMod Project
 + *
@@ -95,39 +101,35 @@ index 000000000..a3e026396
 +
 +#define LOG_TAG "audio_amplifier"
 +
++#include <log/log.h>
++#include <dlfcn.h>
 +#include <stdbool.h>
 +#include <stdlib.h>
-+#include <dlfcn.h>
-+#include <cutils/log.h>
 +
 +#include "audio_hw.h"
 +#include "platform.h"
 +
 +struct amplifier_data {
-+    struct audio_device *adev;
-+    amplifier_device_t *hw;
++    struct audio_device* adev;
++    amplifier_device_t* hw;
 +};
 +
 +struct amplifier_data amp;
 +
-+int amplifier_open(void* adev)
-+{
++int amplifier_open(void* adev) {
 +    int rc;
-+    amplifier_module_t *module;
-+    amp.adev = (struct audio_device *)adev;
++    amplifier_module_t* module;
++    amp.adev = (struct audio_device*)adev;
 +
-+    rc = hw_get_module(AMPLIFIER_HARDWARE_MODULE_ID,
-+            (const hw_module_t **) &module);
++    rc = hw_get_module(AMPLIFIER_HARDWARE_MODULE_ID, (const hw_module_t**)&module);
 +    if (rc) {
-+        ALOGV("%s: Failed to obtain reference to amplifier module: %s\n",
-+                __func__, strerror(-rc));
++        ALOGV("%s: Failed to obtain reference to amplifier module: %s\n", __func__, strerror(-rc));
 +        return -ENODEV;
 +    }
 +
-+    rc = amplifier_device_open((const hw_module_t *) module, &amp.hw);
++    rc = amplifier_device_open((const hw_module_t*)module, &amp.hw);
 +    if (rc) {
-+        ALOGV("%s: Failed to open amplifier hardware device: %s\n",
-+                __func__, strerror(-rc));
++        ALOGV("%s: Failed to open amplifier hardware device: %s\n", __func__, strerror(-rc));
 +        amp.hw = NULL;
 +
 +        return -ENODEV;
@@ -136,24 +138,19 @@ index 000000000..a3e026396
 +    return 0;
 +}
 +
-+int amplifier_set_input_devices(uint32_t devices)
-+{
-+    if (amp.hw && amp.hw->set_input_devices)
-+        return amp.hw->set_input_devices(amp.hw, devices);
++int amplifier_set_input_devices(uint32_t devices) {
++    if (amp.hw && amp.hw->set_input_devices) return amp.hw->set_input_devices(amp.hw, devices);
 +
 +    return 0;
 +}
 +
-+int amplifier_set_output_devices(uint32_t devices)
-+{
-+    if (amp.hw && amp.hw->set_output_devices)
-+        return amp.hw->set_output_devices(amp.hw, devices);
++int amplifier_set_output_devices(uint32_t devices) {
++    if (amp.hw && amp.hw->set_output_devices) return amp.hw->set_output_devices(amp.hw, devices);
 +
 +    return 0;
 +}
 +
-+int amplifier_enable_devices(uint32_t devices, bool enable)
-+{
++int amplifier_enable_devices(uint32_t devices, bool enable) {
 +    bool is_output = devices < SND_DEVICE_OUT_END;
 +
 +    if (amp.hw && amp.hw->enable_output_devices && is_output)
@@ -165,75 +162,58 @@ index 000000000..a3e026396
 +    return 0;
 +}
 +
-+int amplifier_set_mode(audio_mode_t mode)
-+{
-+    if (amp.hw && amp.hw->set_mode)
-+        return amp.hw->set_mode(amp.hw, mode);
++int amplifier_set_mode(audio_mode_t mode) {
++    if (amp.hw && amp.hw->set_mode) return amp.hw->set_mode(amp.hw, mode);
 +
 +    return 0;
 +}
 +
-+int amplifier_output_stream_start(struct audio_stream_out *stream,
-+        bool offload)
-+{
++int amplifier_output_stream_start(struct audio_stream_out* stream, bool offload) {
 +    if (amp.hw && amp.hw->output_stream_start)
 +        return amp.hw->output_stream_start(amp.hw, stream, offload);
 +
 +    return 0;
 +}
 +
-+int amplifier_input_stream_start(struct audio_stream_in *stream)
-+{
-+    if (amp.hw && amp.hw->input_stream_start)
-+        return amp.hw->input_stream_start(amp.hw, stream);
++int amplifier_input_stream_start(struct audio_stream_in* stream) {
++    if (amp.hw && amp.hw->input_stream_start) return amp.hw->input_stream_start(amp.hw, stream);
 +
 +    return 0;
 +}
 +
-+int amplifier_output_stream_standby(struct audio_stream_out *stream)
-+{
++int amplifier_output_stream_standby(struct audio_stream_out* stream) {
 +    if (amp.hw && amp.hw->output_stream_standby)
 +        return amp.hw->output_stream_standby(amp.hw, stream);
 +
 +    return 0;
 +}
 +
-+int amplifier_input_stream_standby(struct audio_stream_in *stream)
-+{
-+    if (amp.hw && amp.hw->input_stream_standby)
-+        return amp.hw->input_stream_standby(amp.hw, stream);
++int amplifier_input_stream_standby(struct audio_stream_in* stream) {
++    if (amp.hw && amp.hw->input_stream_standby) return amp.hw->input_stream_standby(amp.hw, stream);
 +
 +    return 0;
 +}
 +
-+int amplifier_set_parameters(struct str_parms *parms)
-+{
-+    if (amp.hw && amp.hw->set_parameters)
-+        return amp.hw->set_parameters(amp.hw, parms);
++int amplifier_set_parameters(struct str_parms* parms) {
++    if (amp.hw && amp.hw->set_parameters) return amp.hw->set_parameters(amp.hw, parms);
 +
 +    return 0;
 +}
 +
-+int amplifier_out_set_parameters(struct str_parms *parms)
-+{
-+    if (amp.hw && amp.hw->out_set_parameters)
-+        return amp.hw->out_set_parameters(amp.hw, parms);
++int amplifier_out_set_parameters(struct str_parms* parms) {
++    if (amp.hw && amp.hw->out_set_parameters) return amp.hw->out_set_parameters(amp.hw, parms);
 +
 +    return 0;
 +}
 +
-+int amplifier_in_set_parameters(struct str_parms *parms)
-+{
-+    if (amp.hw && amp.hw->in_set_parameters)
-+        return amp.hw->in_set_parameters(amp.hw, parms);
++int amplifier_in_set_parameters(struct str_parms* parms) {
++    if (amp.hw && amp.hw->in_set_parameters) return amp.hw->in_set_parameters(amp.hw, parms);
 +
 +    return 0;
 +}
 +
-+int amplifier_close(void)
-+{
-+    if (amp.hw)
-+        amplifier_device_close(amp.hw);
++int amplifier_close(void) {
++    if (amp.hw) amplifier_device_close(amp.hw);
 +
 +    amp.hw = NULL;
 +
@@ -241,10 +221,10 @@ index 000000000..a3e026396
 +}
 diff --git a/hal/audio_extn/audio_amplifier.h b/hal/audio_extn/audio_amplifier.h
 new file mode 100644
-index 000000000..641f02375
+index 000000000..aa2c5c4a1
 --- /dev/null
 +++ b/hal/audio_extn/audio_amplifier.h
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,51 @@
 +/*
 + * Copyright (c) 2016 The CyanogenMod Project
 + *
@@ -285,14 +265,13 @@ index 000000000..641f02375
 +int amplifier_set_output_devices(uint32_t devices);
 +int amplifier_enable_devices(uint32_t devices, bool enable);
 +int amplifier_set_mode(audio_mode_t mode);
-+int amplifier_output_stream_start(struct audio_stream_out *stream,
-+        bool offload);
-+int amplifier_input_stream_start(struct audio_stream_in *stream);
-+int amplifier_output_stream_standby(struct audio_stream_out *stream);
-+int amplifier_input_stream_standby(struct audio_stream_in *stream);
-+int amplifier_set_parameters(struct str_parms *parms);
-+int amplifier_out_set_parameters(struct str_parms *parms);
-+int amplifier_in_set_parameters(struct str_parms *parms);
++int amplifier_output_stream_start(struct audio_stream_out* stream, bool offload);
++int amplifier_input_stream_start(struct audio_stream_in* stream);
++int amplifier_output_stream_standby(struct audio_stream_out* stream);
++int amplifier_input_stream_standby(struct audio_stream_in* stream);
++int amplifier_set_parameters(struct str_parms* parms);
++int amplifier_out_set_parameters(struct str_parms* parms);
++int amplifier_in_set_parameters(struct str_parms* parms);
 +int amplifier_close(void);
 +#endif
 +
@@ -457,5 +436,5 @@ index 9b7bf5b60..b680085f9 100644
  
  struct audio_patch_record {
 -- 
-2.17.1
+2.25.1
 
