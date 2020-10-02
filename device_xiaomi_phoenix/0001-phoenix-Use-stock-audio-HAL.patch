@@ -1,7 +1,7 @@
-From 8c14b75dfce305bc3d7fb8e07d83fab19d608a93 Mon Sep 17 00:00:00 2001
+From 50d5f71749afc6aef5ed867a75b98b148662847f Mon Sep 17 00:00:00 2001
 From: Pranav Vashi <neobuddy89@gmail.com>
 Date: Wed, 29 Apr 2020 04:05:38 +0530
-Subject: [PATCH 1/2] phoenix: Use stock audio HAL
+Subject: [PATCH] phoenix: Use stock audio HAL
 
 [merothh]: Trim the blob listing
 
@@ -12,7 +12,7 @@ Change-Id: I954d859bc95fc38d63448b49551427e9c8391047
  2 files changed, 20 insertions(+)
 
 diff --git a/BoardConfig.mk b/BoardConfig.mk
-index 4440fc9..163113e 100644
+index e1ac877..e86d906 100644
 --- a/BoardConfig.mk
 +++ b/BoardConfig.mk
 @@ -10,6 +10,8 @@ TARGET_SCREEN_DENSITY := 440
@@ -26,10 +26,10 @@ index 4440fc9..163113e 100644
  # Properties
 @@ -21,6 +23,7 @@ TARGET_OTA_ASSERT_DEVICE := phoenix,phoenixin
  # Audio
- AUDIO_FEATURE_ENABLED_TFA98XX_FEEDBACK := true
  AUDIO_FEATURE_ELLIPTIC_ULTRASOUND_SUPPORT := true
+ AUDIO_FEATURE_ENABLED_EXT_AMPLIFIER := true
 +TARGET_PROVIDES_AUDIO_EXTNS := true
-
+ 
  # Init
  TARGET_INIT_VENDOR_LIB := libinit_phoenix
 diff --git a/proprietary-files.txt b/proprietary-files.txt
